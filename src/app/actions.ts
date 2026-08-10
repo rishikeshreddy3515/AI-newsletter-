@@ -1,9 +1,9 @@
 'use server'
 
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function updateArticleStatus(articleId: string, status: 'read' | 'read_later' | 'archived') {
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('user_article_status')
     .upsert(
       { article_id: articleId, status },
@@ -16,3 +16,4 @@ export async function updateArticleStatus(articleId: string, status: 'read' | 'r
   }
   return { success: true };
 }
+

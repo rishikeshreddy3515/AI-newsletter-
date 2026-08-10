@@ -65,16 +65,31 @@ export async function POST(request: Request) {
     for (const article of articlesToAnalyze) {
       try {
         const prompt = `
-          Analyze the following AI/ML article or research paper.
-          Determine its relevance and importance to a highly technical AI/ML engineer or researcher.
+          You are an expert AI and machine learning analyst and a witty, intelligent editorial companion. 
+          Analyze this article and return a JSON object evaluating its importance.
           
-          Title: ${article.title}
-          Content/Description: ${article.description || 'No description available.'}
+          Article Title: ${article.title}
+          Article Content/Description: ${article.description || 'No description available.'}
           URL: ${article.url}
           Source Category: ${article.category}
 
-          Return a JSON object containing the required analysis.
-          If information is unavailable, explicitly say that it was not available in the source material.
+          Return a JSON object with the following structure exactly:
+          {
+            "category": "string",
+            "importance_score": <0-100 integer, 100 being industry-shaking>,
+            "novelty_score": <0-100 integer, how new/unique is this?>,
+            "technical_relevance_score": <0-100 integer>,
+            "research_value_score": <0-100 integer>,
+            "industry_impact_score": <0-100 integer>,
+            "short_headline": "<A punchy, 4-6 word headline>",
+            "one_sentence_summary": "<A dense, highly informative one-sentence summary>",
+            "detailed_summary": "<2-3 paragraphs explaining the core concepts, methods, and results. Be technical but accessible.>",
+            "why_it_matters": "<1 paragraph explaining why the AI community should care about this.>",
+            "key_technical_details": "<Comma separated list of key models, techniques, or hardware mentioned>",
+            "related_topics": ["<topic1>", "<topic2>"],
+            "is_worth_including": <boolean, true ONLY if importance_score > 60 OR novelty > 75>,
+            "editorial_comment": "<Optional: A short (3-10 words) witty, smart, or insightful comment from our AI mascot. e.g. 'Researchers cooked here.' or 'That's a lot of GPUs.' Leave null if the article is boring or standard PR.>"
+          }
         `;
 
         const response = await ai.models.generateContent({

@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import Link from 'next/link';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, ArrowLeft } from 'lucide-react';
+import CartoonMascot from '@/components/CartoonMascot';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,49 +24,63 @@ export default async function ReadLaterPage() {
 
   if (!articles || articles.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <h2 className="text-2xl font-bold mb-2">No saved stories</h2>
-        <p className="text-gray-500">Swipe left on a story in the main feed to save it for later.</p>
-        <Link href="/" className="mt-8 text-blue-600 font-semibold hover:underline">
-          Go to Feed
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-gray-50 dark:bg-gray-950">
+        <CartoonMascot state="thinking" size={100} />
+        <h2 className="text-3xl font-extrabold mt-8 tracking-tight">Nothing saved yet.</h2>
+        <p className="text-gray-500 font-medium mt-3">Swipe left when something looks worth returning to.</p>
+        <Link href="/" className="mt-8 px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold rounded-full hover:scale-105 transition-transform">
+          Back to Feed
         </Link>
       </div>
     );
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8 pb-24">
-      <h1 className="text-3xl font-extrabold mb-8">Read Later</h1>
-      
-      <div className="flex flex-col gap-6">
-        {articles.map((article: any) => {
-          const analysis = Array.isArray(article.analysis) ? article.analysis[0] : article.analysis;
-          return (
-            <div key={article.id} className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">{article.category}</span>
-                <span suppressHydrationWarning className="text-xs text-gray-500">{new Date(article.publication_date).toLocaleDateString()}</span>
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6 md:p-12 lg:p-24">
+      <div className="max-w-4xl mx-auto">
+        <header className="mb-16 flex items-start justify-between">
+          <div>
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-black dark:hover:text-white transition-colors mb-6">
+              <ArrowLeft size={16} /> Dashboard
+            </Link>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Your Weekend<br/>Rabbit Hole</h1>
+            <p className="text-lg text-gray-500 font-medium">Stories you saved for when you actually have time to read.</p>
+          </div>
+          <div className="hidden sm:block">
+            <CartoonMascot state="reading" size={80} />
+          </div>
+        </header>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {articles.map((article: any, i: number) => {
+            const analysis = Array.isArray(article.analysis) ? article.analysis[0] : article.analysis;
+            return (
+              <div key={article.id} className="bg-white dark:bg-gray-900 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">{article.category}</span>
+                  <span suppressHydrationWarning className="text-xs font-semibold text-gray-400">{new Date(article.publication_date).toLocaleDateString()}</span>
+                </div>
+                <h2 className="text-2xl font-bold mb-4 leading-snug">
+                  {analysis?.short_headline || article.title}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-8 leading-relaxed font-medium flex-1">
+                  {analysis?.detailed_summary || article.description}
+                </p>
+                <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800 mt-auto">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{article.source?.name}</span>
+                  <a 
+                    href={article.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-sm font-bold text-blue-600 hover:text-blue-500 transition-colors"
+                  >
+                    Read Original <ExternalLink size={14} />
+                  </a>
+                </div>
               </div>
-              <h2 className="text-xl font-bold mb-2 leading-tight">
-                {analysis?.short_headline || article.title}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
-                {analysis?.detailed_summary || article.description}
-              </p>
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
-                <span className="text-xs text-gray-500">{article.source?.name}</span>
-                <a 
-                  href={article.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700"
-                >
-                  Read Original <ExternalLink size={14} />
-                </a>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </main>
   );

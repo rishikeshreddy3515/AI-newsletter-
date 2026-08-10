@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase';
-import Feed from './Feed';
+import ClientHome from './ClientHome';
 
 // Opt out of caching so we always get fresh unread articles
 export const dynamic = 'force-dynamic';
@@ -41,8 +41,6 @@ export default async function Home() {
   });
 
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden fixed inset-0 flex items-center justify-center">
-      <Feed initialArticles={unreadFeed} />
-    </main>
+    <ClientHome articles={unreadFeed} />
   );
 }

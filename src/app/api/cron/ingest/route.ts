@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 const parser = new Parser({
   customFields: {
-    item: ['author', 'creator', 'description', 'content:encoded', 'pubDate'],
+    item: ['author', 'creator', 'description', 'content:encoded', 'pubDate', 'enclosure', 'media:content'],
   },
 });
 
@@ -49,6 +49,19 @@ export async function POST(request: Request) {
           const author = item.creator || item.author || null;
           const description = item['content:encoded'] || item.content || item.description || null;
           
+          // Try to find an image
+          let imageUrl = null;
+          if (item.enclosure && item.enclosure.url && item.enclosure.type?.startsWith('image/')) {
+            imageUrl = item.enclosure.url;
+          } else if (item['media:content'] && item['media:content'].$) {
+            imageUrl = item['media:content'].$.url;
+          } else if (description) {
+            const imgMatch = description.match(/<img[^>]+src="([^">]+)"/);
+            if (imgMatch && imgMatch[1]) {
+              imageUrl = imgMatch[1];
+            }
+          }
+          
           // Upsert to DB
           const { error: insertError } = await supabaseAdmin
             .from('articles')
@@ -58,6 +71,7 @@ export async function POST(request: Request) {
               url,
               author,
               description,
+              image_url: imageUrl,
               category: source.category,
               publication_date: new Date(pubDate).toISOString(),
               canonical_url: url // basic deduplication for now
