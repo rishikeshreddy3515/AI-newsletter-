@@ -1,7 +1,7 @@
-import { Variants } from 'framer-motion';
+import { Variants, Easing } from 'framer-motion';
 
 // Global Easing for a smooth, premium feel (not too bouncy, not linear)
-export const premiumEasing = [0.22, 1, 0.36, 1];
+export const premiumEasing: Easing = [0.22, 1, 0.36, 1];
 
 export const staggerContainer: Variants = {
   hidden: { opacity: 0 },
