@@ -14,7 +14,7 @@ export default async function Home() {
       *,
       source:sources(name),
       analysis:article_analysis(*),
-      status:user_article_status(status)
+      status:user_article_status(status, is_read, is_saved)
     `)
     .gte('publication_date', sevenDaysAgo)
     .not('analysis', 'is', null)
@@ -25,13 +25,11 @@ export default async function Home() {
     return <div>Error loading feed</div>;
   }
 
-  // Filter in memory for worthy and unread
-  const unreadFeed = (articles || []).filter((a: any) => {
+  // Filter in memory for worthy articles only, preserving read articles
+  const todayFeed = (articles || []).filter((a: any) => {
     const an = Array.isArray(a.analysis) ? a.analysis[0] : a.analysis;
-    const st = Array.isArray(a.status) ? a.status[0] : a.status;
     const isWorthy = an && an.is_worth_including;
-    const isUnread = !st || st.status === 'unread';
-    return isWorthy && isUnread;
+    return isWorthy;
   }).sort((a: any, b: any) => {
     const anA = Array.isArray(a.analysis) ? a.analysis[0] : a.analysis;
     const anB = Array.isArray(b.analysis) ? b.analysis[0] : b.analysis;
@@ -41,6 +39,6 @@ export default async function Home() {
   });
 
   return (
-    <ClientHome articles={unreadFeed} />
+    <ClientHome articles={todayFeed} />
   );
 }

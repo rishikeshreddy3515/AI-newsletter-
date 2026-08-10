@@ -13,7 +13,7 @@ export const maxDuration = 300; // Allow Vercel up to 5 minutes
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET?.trim()}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
