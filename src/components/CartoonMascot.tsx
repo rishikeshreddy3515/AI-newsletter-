@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 interface CartoonMascotProps {
   state?: 'idle' | 'reading' | 'surprised' | 'thinking';
@@ -10,14 +10,14 @@ interface CartoonMascotProps {
 
 export default function CartoonMascot({ state = 'idle', className = '', size = 64 }: CartoonMascotProps) {
   // Define animation states for the mascot
-  const variants = {
+  const variants: Variants = {
     idle: { y: [0, -5, 0], transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' } },
     reading: { y: [0, 2, 0], x: [-1, 1, -1], transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' } },
     surprised: { y: -10, scale: 1.1, transition: { type: 'spring', stiffness: 300, damping: 10 } },
     thinking: { y: [0, -3, 0], rotate: [0, 5, -5, 0], transition: { duration: 4, repeat: Infinity, ease: 'easeInOut' } }
   };
 
-  const eyeVariants = {
+  const eyeVariants: Variants = {
     idle: { scaleY: [1, 1, 0.1, 1, 1], transition: { duration: 4, repeat: Infinity, times: [0, 0.9, 0.95, 0.98, 1] } }, // Blinking
     surprised: { scaleY: 1.5, scaleX: 1.2 },
     reading: { scaleY: 0.8, x: [0, 2, -2, 0], transition: { duration: 3, repeat: Infinity } },
