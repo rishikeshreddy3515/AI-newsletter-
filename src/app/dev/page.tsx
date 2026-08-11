@@ -6,8 +6,7 @@ import { Play, Loader2, Mail, Bot, Rss } from 'lucide-react';
 export default function DevPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
-
-  const CRON_SECRET = 'super-secret-key-for-manual-cron';
+  const [secret, setSecret] = useState('super-secret-key-for-manual-cron');
 
   const trigger = async (endpoint: string) => {
     setLoading(endpoint);
@@ -16,7 +15,7 @@ export default function DevPage() {
       const res = await fetch(`/api/cron/${endpoint}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${CRON_SECRET}`
+          'Authorization': `Bearer ${secret}`
         }
       });
       const data = await res.json();
@@ -30,7 +29,20 @@ export default function DevPage() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-8 pb-24">
       <h1 className="text-3xl font-extrabold mb-2">Developer Tools</h1>
-      <p className="text-gray-500 mb-8">Manually trigger the background jobs for testing.</p>
+      <p className="text-gray-500 mb-6">Manually trigger the background jobs for testing.</p>
+
+      <div className="mb-8">
+        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+          CRON_SECRET (Authorization Bearer Token)
+        </label>
+        <input 
+          type="password" 
+          value={secret}
+          onChange={(e) => setSecret(e.target.value)}
+          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Paste your production CRON_SECRET here..."
+        />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <button
