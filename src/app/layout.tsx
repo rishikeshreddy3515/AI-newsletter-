@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk, Doto } from "next/font/google";
 import "./globals.css";
-import TopNav from "@/components/TopNav";
-import BottomNav from "@/components/BottomNav";
+import GlassNavbar from "@/components/ui/glass-navbar";
 
-const inter = Inter({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({ 
+  subsets: ["latin"],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+});
+
+const doto = Doto({ 
+  subsets: ["latin"],
+  variable: '--font-doto',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: "AI Morning Brief",
@@ -18,14 +27,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased selection:bg-blue-500/30`}>
-        <TopNav />
+      <body className={`${spaceGrotesk.variable} ${doto.variable} bg-background text-foreground antialiased selection:bg-sage/30`}>
+        <GlassNavbar 
+          logo="AI Morning Brief"
+          navItems={["Home", "Saved", "Dev"]}
+          showLogo={true}
+        />
         
-        <div className="pt-16 pb-16 md:pb-0">
+        <div className="pb-16 md:pb-0">
           {children}
         </div>
-
-        <BottomNav />
       </body>
     </html>
   );

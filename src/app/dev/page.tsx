@@ -27,19 +27,19 @@ export default function DevPage() {
   };
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8 pb-24">
-      <h1 className="text-3xl font-extrabold mb-2">Developer Tools</h1>
-      <p className="text-gray-500 mb-6">Manually trigger the background jobs for testing.</p>
+    <main className="max-w-3xl mx-auto px-4 py-8 pb-24 text-foreground">
+      <h1 className="text-3xl font-extrabold mb-2 tracking-tight">Developer Tools</h1>
+      <p className="text-text-secondary mb-6 font-medium">Manually trigger the background jobs for testing.</p>
 
       <div className="mb-8">
-        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-bold text-foreground mb-2 uppercase tracking-widest text-[10px]">
           CRON_SECRET (Authorization Bearer Token)
         </label>
         <input 
           type="password" 
           value={secret}
           onChange={(e) => setSecret(e.target.value)}
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 rounded-xl border-2 border-sage/20 bg-background text-foreground font-mono focus:outline-none focus:border-sage/50 transition-colors"
           placeholder="Paste your production CRON_SECRET here..."
         />
       </div>
@@ -48,37 +48,37 @@ export default function DevPage() {
         <button
           onClick={() => trigger('ingest')}
           disabled={loading !== null}
-          className="flex flex-col items-center justify-center gap-3 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-blue-500 transition disabled:opacity-50"
+          className="flex flex-col items-center justify-center gap-3 bg-sage-soft/10 p-6 rounded-2xl border border-sage/20 shadow-sm hover:shadow-md hover:border-sage/40 transition disabled:opacity-50 text-foreground"
         >
-          {loading === 'ingest' ? <Loader2 className="animate-spin text-blue-500" size={32} /> : <Rss className="text-orange-500" size={32} />}
+          {loading === 'ingest' ? <Loader2 className="animate-spin text-sage" size={32} /> : <Rss className="text-sage" size={32} />}
           <span className="font-bold">1. Run Ingestion</span>
         </button>
 
         <button
           onClick={() => trigger('analyze')}
           disabled={loading !== null}
-          className="flex flex-col items-center justify-center gap-3 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-blue-500 transition disabled:opacity-50"
+          className="flex flex-col items-center justify-center gap-3 bg-sage-soft/10 p-6 rounded-2xl border border-sage/20 shadow-sm hover:shadow-md hover:border-sage/40 transition disabled:opacity-50 text-foreground"
         >
-          {loading === 'analyze' ? <Loader2 className="animate-spin text-blue-500" size={32} /> : <Bot className="text-purple-500" size={32} />}
+          {loading === 'analyze' ? <Loader2 className="animate-spin text-sage" size={32} /> : <Bot className="text-gold" size={32} />}
           <span className="font-bold">2. Run AI Analysis</span>
         </button>
 
         <button
           onClick={() => trigger('newsletter')}
           disabled={loading !== null}
-          className="flex flex-col items-center justify-center gap-3 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-blue-500 transition disabled:opacity-50"
+          className="flex flex-col items-center justify-center gap-3 bg-sage-soft/10 p-6 rounded-2xl border border-sage/20 shadow-sm hover:shadow-md hover:border-sage/40 transition disabled:opacity-50 text-foreground"
         >
-          {loading === 'newsletter' ? <Loader2 className="animate-spin text-blue-500" size={32} /> : <Mail className="text-green-500" size={32} />}
+          {loading === 'newsletter' ? <Loader2 className="animate-spin text-sage" size={32} /> : <Mail className="text-sage" size={32} />}
           <span className="font-bold">3. Generate & Email</span>
         </button>
       </div>
 
       {result && (
-        <div className="bg-gray-900 text-green-400 p-6 rounded-2xl overflow-auto border border-gray-800 shadow-inner">
-          <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-            <Play size={16} /> Result: /{result.endpoint}
+        <div className="bg-sage-soft/20 text-foreground p-6 rounded-2xl overflow-auto border border-sage/30 shadow-inner">
+          <h3 className="font-bold mb-4 flex items-center gap-2">
+            <Play size={16} className="text-sage" /> Result: /{result.endpoint}
           </h3>
-          <pre className="text-sm">
+          <pre className="text-sm font-mono text-text-secondary whitespace-pre-wrap">
             {JSON.stringify(result.data || result.error, null, 2)}
           </pre>
         </div>

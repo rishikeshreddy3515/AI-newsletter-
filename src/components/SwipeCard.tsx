@@ -1,9 +1,8 @@
 'use client';
 
 import { motion, useAnimation, useMotionValue, useTransform, PanInfo } from 'framer-motion';
-import { useState, useImperativeHandle, forwardRef } from 'react';
+import { useImperativeHandle, forwardRef } from 'react';
 import { ExternalLink, Check, BookmarkPlus } from 'lucide-react';
-import CartoonMascot from './CartoonMascot';
 
 interface Article {
   id: string;
@@ -28,12 +27,10 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
   const controls = useAnimation();
   const x = useMotionValue(0);
   
-  // Transform values based on drag distance
-  const rotate = useTransform(x, [-200, 200], [-10, 10]);
+  const rotate = useTransform(x, [-200, 200], [-8, 8]);
   const opacity = useTransform(x, [-300, 0, 300], [0.5, 1, 0.5]);
   const scale = useTransform(x, [-200, 0, 200], [0.95, 1, 0.95]);
 
-  // Directional Feedback Indicators
   const readOpacity = useTransform(x, [0, 150], [0, 1]);
   const readLaterOpacity = useTransform(x, [0, -150], [0, 1]);
 
@@ -58,7 +55,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
     dragDirectionLock: true,
     dragElastic: 0.8,
     onDragEnd: async (e: any, info: PanInfo) => {
-      const threshold = 120; // Needs a deliberate swipe
+      const threshold = 120;
       if (info.offset.x > threshold || info.velocity.x > 500) {
         await handleSwipeAction('right');
       } else if (info.offset.x < -threshold || info.velocity.x < -500) {
@@ -85,82 +82,69 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
         zIndex: isActive ? 10 : 0,
         pointerEvents: isActive ? 'auto' : 'none',
       }}
-      className="absolute inset-0 w-full h-full bg-white dark:bg-gray-900 rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 flex flex-col touch-pan-y"
+      className="absolute inset-0 w-full h-full bg-background rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden border border-sage/20 flex flex-col touch-pan-y"
     >
-      {/* Directional Overlay Indicators */}
-      <motion.div style={{ opacity: readOpacity }} className="absolute inset-0 z-50 pointer-events-none bg-green-500/10 flex items-center justify-center">
-        <div className="bg-green-500 text-white rounded-full p-6 shadow-2xl scale-150">
+      <motion.div style={{ opacity: readOpacity }} className="absolute inset-0 z-50 pointer-events-none bg-sage/10 flex items-center justify-center">
+        <div className="bg-sage text-background rounded-full p-6 shadow-2xl scale-150">
           <Check size={48} strokeWidth={3} />
         </div>
       </motion.div>
-      <motion.div style={{ opacity: readLaterOpacity }} className="absolute inset-0 z-50 pointer-events-none bg-blue-500/10 flex items-center justify-center">
-        <div className="bg-blue-500 text-white rounded-full p-6 shadow-2xl scale-150">
+      
+      <motion.div style={{ opacity: readLaterOpacity }} className="absolute inset-0 z-50 pointer-events-none bg-gold/10 flex items-center justify-center">
+        <div className="bg-gold text-background rounded-full p-6 shadow-2xl scale-150">
           <BookmarkPlus size={48} strokeWidth={3} />
         </div>
       </motion.div>
 
-      {/* Image / Visual Header */}
-      <div className="relative h-48 sm:h-56 shrink-0 bg-gray-900 overflow-hidden">
+      <div className="relative h-48 sm:h-56 shrink-0 bg-sage-soft/30 overflow-hidden">
         {article.image_url ? (
           <img src={article.image_url} alt="Article visual" className="w-full h-full object-cover select-none pointer-events-none" />
         ) : (
-          <img 
-            src={
-              article.category.toLowerCase() === 'research' 
-                ? 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800' // Tech chip/board
-                : article.category.toLowerCase() === 'models'
-                ? 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=800' // Abstract AI orb
-                : article.category.toLowerCase() === 'open source'
-                ? 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800' // Code on screen
-                : 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800' // Global digital earth
-            } 
-            alt="Category fallback" 
-            className="w-full h-full object-cover select-none pointer-events-none opacity-80" 
-          />
+          <div className="w-full h-full flex items-center justify-center text-sage font-mono text-sm uppercase tracking-widest bg-sage-soft/20">
+            Editorial Piece
+          </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-gray-900 via-transparent to-black/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/20"></div>
         
-        {/* Top Badges */}
         <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-10">
-          <span className="px-3 py-1.5 bg-black/80 backdrop-blur text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-lg border border-white/10">
+          <span className="px-3 py-1.5 bg-foreground/90 backdrop-blur text-background text-[10px] font-bold uppercase tracking-widest rounded-full shadow-lg border border-background/20">
             {article.category}
           </span>
-          <span suppressHydrationWarning className="px-3 py-1.5 bg-black/80 backdrop-blur text-gray-100 text-[10px] font-bold rounded-full shadow-lg border border-white/10">
+          <span suppressHydrationWarning className="px-3 py-1.5 bg-foreground/90 backdrop-blur text-background text-[10px] font-bold rounded-full shadow-lg border border-background/20 font-mono">
             {new Date(article.publication_date).toLocaleDateString()}
           </span>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 sm:px-8 pb-32 hide-scrollbar relative z-10 -mt-6">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-3 leading-tight tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-4 leading-tight tracking-tight">
           {analysis.short_headline || article.title}
         </h2>
         
-        <p className="text-sm font-bold text-gray-400 dark:text-gray-500 mb-8 uppercase tracking-widest">
-          {article.source?.name}
+        <p className="text-xs font-bold text-text-muted mb-8 uppercase tracking-widest">
+          Source: {article.source?.name}
         </p>
 
         {editorialComment && (
-          <div className="flex items-start gap-4 mb-8 bg-blue-50 dark:bg-blue-900/10 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30">
-            <CartoonMascot state="thinking" size={40} className="shrink-0" />
+          <div className="flex items-start gap-4 mb-8 bg-sage-soft/10 p-5 rounded-2xl border border-sage/20">
             <div>
-              <p className="text-sm font-bold text-blue-700 dark:text-blue-400">Analysis</p>
-              <p className="text-sm text-blue-900 dark:text-blue-300 italic">"{editorialComment}"</p>
+              <p className="text-xs font-mono font-bold text-sage mb-2 uppercase tracking-wider">AI Insight</p>
+              <p className="text-[15px] text-text-secondary italic">"{editorialComment}"</p>
             </div>
           </div>
         )}
 
-        <div className="prose dark:prose-invert max-w-none">
-          <p className="text-[16px] sm:text-[17px] leading-relaxed mb-8 text-gray-700 dark:text-gray-300 font-medium">
+        <div className="prose max-w-none">
+          <p className="text-[16px] sm:text-[17px] leading-relaxed mb-8 text-foreground font-medium">
             {analysis.detailed_summary}
           </p>
 
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 mb-8 border border-gray-100 dark:border-gray-800">
-            <h3 className="text-xs font-black text-gray-900 dark:text-gray-100 mb-3 uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+          <div className="bg-sage-soft/10 rounded-2xl p-6 mb-8 border border-sage/10">
+            <h3 className="text-xs font-black text-foreground mb-3 uppercase tracking-widest flex items-center gap-2 font-mono">
+              <span className="w-2 h-2 bg-gold rounded-full"></span>
               Why it matters
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 text-[15px] leading-relaxed m-0 font-medium">
+            <p className="text-text-secondary text-[15px] leading-relaxed m-0">
               {analysis.why_it_matters}
             </p>
           </div>
@@ -170,9 +154,9 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
           href={article.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-500 font-bold transition mx-auto"
+          className="inline-flex items-center gap-2 text-sage hover:text-sage-soft font-bold transition mx-auto mb-8 font-mono text-sm uppercase tracking-wider"
         >
-          Read full article <ExternalLink size={16} />
+          Read full source <ExternalLink size={16} />
         </a>
       </div>
     </motion.div>
