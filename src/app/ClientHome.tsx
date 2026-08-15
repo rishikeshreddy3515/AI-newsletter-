@@ -9,6 +9,7 @@ import DisplayCards from '@/components/ui/display-cards';
 import { pageTransition, staggerContainer, fadeUp } from '@/lib/animations';
 import { Sparkles, Activity, FileText, Clock, TrendingUp } from 'lucide-react';
 import CartoonMascot from '@/components/CartoonMascot';
+import { SplineScene } from '@/components/ui/splite';
 
 export default function ClientHome({ articles }: { articles: any[] }) {
   const [isReading, setIsReading] = useState(false);
@@ -67,34 +68,39 @@ export default function ClientHome({ articles }: { articles: any[] }) {
             variants={staggerContainer} 
             initial="hidden" 
             animate="show"
-            className="flex flex-col items-center text-center mt-8 mb-24"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mt-8 mb-32 min-h-[50vh]"
           >
-            <motion.div variants={fadeUp} className="mb-6">
-              <CartoonMascot state="reading" size={80} />
-            </motion.div>
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-1">
+              <motion.span suppressHydrationWarning variants={fadeUp} className="text-sage font-mono tracking-widest uppercase text-sm mb-6 flex items-center gap-2">
+                <Sparkles size={16} /> Edition <span suppressHydrationWarning>{new Date().toLocaleDateString()}</span>
+              </motion.span>
+              
+              <motion.h1 variants={fadeUp} className="text-5xl md:text-6xl xl:text-7xl font-extrabold tracking-tighter leading-[1.1] mb-8 text-foreground max-w-2xl">
+                YOUR DAILY INTELLIGENCE,<br/>
+                <span className="text-sage">CURATED BY AI.</span>
+              </motion.h1>
+              
+              <motion.p variants={fadeUp} className="text-lg md:text-xl text-text-secondary font-medium max-w-xl mb-12">
+                The most important stories, breakthroughs, and developments in artificial intelligence you actually need to know.
+              </motion.p>
+              
+              <motion.div variants={fadeUp}>
+                <button 
+                  onClick={() => setIsReading(true)}
+                  className="group relative flex h-14 items-center justify-center overflow-hidden rounded-full border border-sage/40 bg-foreground/90 px-10 text-background shadow-lg transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95 text-sm font-medium"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {hasUnread ? "Start Reading" : "Read Again"}
+                  </span>
+                </button>
+              </motion.div>
+            </div>
 
-            <motion.span suppressHydrationWarning variants={fadeUp} className="text-sage font-mono tracking-widest uppercase text-sm mb-6 flex items-center gap-2">
-              <Sparkles size={16} /> Edition <span suppressHydrationWarning>{new Date().toLocaleDateString()}</span>
-            </motion.span>
-            
-            <motion.h1 variants={fadeUp} className="text-5xl md:text-7xl font-extrabold tracking-tighter leading-[1.1] mb-8 text-foreground max-w-4xl">
-              YOUR DAILY INTELLIGENCE,<br/>
-              <span className="text-sage">CURATED BY AI.</span>
-            </motion.h1>
-            
-            <motion.p variants={fadeUp} className="text-lg md:text-xl text-text-secondary font-medium max-w-2xl mb-12">
-              The most important stories, breakthroughs, and developments in artificial intelligence you actually need to know.
-            </motion.p>
-            
-            <motion.div variants={fadeUp}>
-              <button 
-                onClick={() => setIsReading(true)}
-                className="group relative flex h-14 items-center justify-center overflow-hidden rounded-full border border-sage/40 bg-foreground/90 px-10 text-background shadow-lg transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95 text-sm font-medium"
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  {hasUnread ? "Start Reading" : "Read Again"}
-                </span>
-              </button>
+            <motion.div variants={fadeUp} className="w-full h-[350px] sm:h-[400px] lg:h-[550px] relative order-2 mt-8 lg:mt-0 flex items-center justify-center overflow-visible pointer-events-auto">
+              <SplineScene 
+                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" 
+                className="w-full h-full"
+              />
             </motion.div>
           </motion.div>
 

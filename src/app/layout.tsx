@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={`${spaceGrotesk.variable} ${doto.variable} bg-background text-foreground antialiased selection:bg-sage/30`}>
         <GlassNavbar 
           logo="AI Morning Brief"
