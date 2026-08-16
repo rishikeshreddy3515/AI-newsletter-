@@ -161,9 +161,9 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
       </div>
 
       {/* RIGHT COLUMN: Dribbble Card Stack */}
-      <div className="h-[75vh] lg:h-[65vh] w-full lg:flex-1 max-w-md lg:max-w-lg relative perspective-1000 z-10 order-1 lg:order-2 shrink-0">
-        <AnimatePresence mode="popLayout">
-          {articles.map((article, index) => {
+      <div className="flex-1 min-h-0 h-full w-full lg:h-[65vh] lg:flex-1 max-w-md lg:max-w-lg relative perspective-1000 z-10 order-1 lg:order-2 shrink-0">
+        <AnimatePresence>
+          {articles.slice(0, 3).map((article, index) => {
             const isActive = index === 0;
             return (
               <SwipeCard
@@ -180,7 +180,7 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
       </div>
 
       {/* Action Buttons (Mobile ONLY) */}
-      <div className="flex lg:hidden items-center justify-center gap-8 mt-2 order-3 z-20 w-full shrink-0">
+      <div className="flex lg:hidden items-center justify-center gap-8 mt-4 order-3 z-20 w-full shrink-0 pb-6">
         <button 
           onClick={() => triggerSwipe('left')}
           className="w-16 h-16 flex items-center justify-center bg-sage-soft/10 backdrop-blur-xl border border-sage/20 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group shrink-0"
