@@ -174,6 +174,18 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
               {analysis?.detailed_summary || article.description}
             </p>
             
+            {analysis?.why_it_matters && (
+              <div className="bg-sage-soft/20 backdrop-blur-md rounded-2xl p-5 mb-6 border border-sage/30 shadow-lg">
+                <h3 className="text-[10px] font-black text-gold mb-2 uppercase tracking-widest flex items-center gap-2 font-mono">
+                  <span className="w-1.5 h-1.5 bg-gold rounded-full"></span>
+                  Why it matters
+                </h3>
+                <p className="text-white/90 text-sm leading-relaxed m-0 drop-shadow-md">
+                  {analysis.why_it_matters}
+                </p>
+              </div>
+            )}
+            
             <a 
               href={article.url} 
               target="_blank" 

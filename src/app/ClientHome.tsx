@@ -139,7 +139,7 @@ export default function ClientHome({ articles }: { articles: any[] }) {
               </motion.div>
             </div>
 
-            <motion.div variants={fadeUp} className="w-full h-[350px] sm:h-[400px] lg:h-[550px] relative order-2 mt-8 lg:mt-0 flex items-center justify-center overflow-visible pointer-events-auto">
+            <motion.div variants={fadeUp} className="hidden lg:flex w-full lg:h-[550px] relative order-2 mt-8 lg:mt-0 items-center justify-center overflow-visible pointer-events-auto">
               <SplineScene 
                 scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" 
                 className="w-full h-full"
