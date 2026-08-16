@@ -12,6 +12,7 @@ interface Article {
   publication_date: string;
   category: string;
   image_url?: string;
+  description?: string;
   analysis: any[];
 }
 
