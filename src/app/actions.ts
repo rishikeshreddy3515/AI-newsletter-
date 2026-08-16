@@ -6,7 +6,6 @@ import { revalidatePath } from 'next/cache';
 export async function removeSavedArticle(articleId: string) {
   await updateArticleStatus(articleId, { is_saved: false });
   revalidatePath('/read-later');
-  return { success: true };
 }
 
 export async function updateArticleStatus(
