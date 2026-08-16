@@ -1,7 +1,8 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import Link from 'next/link';
-import { ExternalLink, ArrowLeft } from 'lucide-react';
+import { ExternalLink, ArrowLeft, Trash2 } from 'lucide-react';
 import CartoonMascot from '@/components/CartoonMascot';
+import { removeSavedArticle } from '../actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,14 +77,25 @@ export default async function ReadLaterPage() {
                 </p>
                 <div className="flex items-center justify-between pt-6 border-t border-sage/20 mt-auto">
                   <span className="text-xs font-mono font-bold text-gold uppercase tracking-widest">{article.source?.name}</span>
-                  <a 
-                    href={article.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm font-bold text-sage hover:text-foreground transition-colors"
-                  >
-                    Read Original <ExternalLink size={14} />
-                  </a>
+                  <div className="flex items-center gap-4">
+                    <a 
+                      href={article.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-sm font-bold text-sage hover:text-foreground transition-colors"
+                    >
+                      Read Original <ExternalLink size={14} />
+                    </a>
+                    <form action={removeSavedArticle.bind(null, article.id)}>
+                      <button 
+                        type="submit"
+                        className="p-2 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors z-10"
+                        title="Remove from Saved"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             );

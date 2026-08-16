@@ -19,17 +19,36 @@ export interface SwipeCardHandle {
   swipe: (dir: 'left' | 'right') => Promise<void>;
 }
 
+const FALLBACK_IMAGES = [
+  "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800&h=1200", // abstract ai
+  "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=800&h=1200", // tech glass
+  "https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&q=80&w=800&h=1200", // neural network
+  "https://images.unsplash.com/photo-1618044733300-9472054094ee?auto=format&fit=crop&q=80&w=800&h=1200", // abstract glass
+  "https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?auto=format&fit=crop&q=80&w=800&h=1200", // abstract data
+  "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800&h=1200", // cyber
+];
+
+const getFallbackImage = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return FALLBACK_IMAGES[Math.abs(hash) % FALLBACK_IMAGES.length];
+};
+
 const SwipeCard = forwardRef<SwipeCardHandle, { 
   article: Article; 
   onSwipe: (dir: 'left' | 'right') => void;
   isActive: boolean;
-}>(({ article, onSwipe, isActive }, ref) => {
+  index: number;
+}>(({ article, onSwipe, isActive, index }, ref) => {
   const controls = useAnimation();
   const x = useMotionValue(0);
   
   const rotate = useTransform(x, [-200, 200], [-8, 8]);
-  const opacity = useTransform(x, [-300, 0, 300], [0.5, 1, 0.5]);
-  const scale = useTransform(x, [-200, 0, 200], [0.95, 1, 0.95]);
+  // Use index for base scale and opacity, then multiply by drag transform
+  const dragScale = useTransform(x, [-200, 0, 200], [0.95, 1, 0.95]);
+  const dragOpacity = useTransform(x, [-300, 0, 300], [0.5, 1, 0.5]);
 
   const readOpacity = useTransform(x, [0, 150], [0, 1]);
   const readLaterOpacity = useTransform(x, [0, -150], [0, 1]);
@@ -38,9 +57,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
     const targetX = dir === 'right' ? window.innerWidth : -window.innerWidth;
     await controls.start({ 
       x: targetX, 
-      opacity: 0, 
-      scale: 0.9,
-      transition: { duration: 0.3, ease: 'easeOut' } 
+      transition: { type: 'spring', stiffness: 200, damping: 20 } 
     });
     onSwipe(dir);
   };
@@ -53,7 +70,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
     drag: "x" as const,
     dragConstraints: { left: 0, right: 0 },
     dragDirectionLock: true,
-    dragElastic: 0.8,
+    dragElastic: 1,
     onDragEnd: async (e: any, info: PanInfo) => {
       const threshold = 120;
       if (info.offset.x > threshold || info.velocity.x > 500) {
@@ -61,103 +78,69 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
       } else if (info.offset.x < -threshold || info.velocity.x < -500) {
         await handleSwipeAction('left');
       } else {
-        controls.start({ x: 0, opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 25 } });
+        controls.start({ x: 0, transition: { type: 'spring', stiffness: 300, damping: 25 } });
       }
     }
   } : {};
 
-  const analysis = Array.isArray(article.analysis) ? article.analysis[0] || {} : article.analysis || {};
-  const editorialComment = analysis.editorial_comment;
+  // Dribbble deck stagger calculations
+  const baseY = index * 20;
+  const baseScale = Math.max(0, 1 - index * 0.05);
+  const baseOpacity = isActive ? 1 : Math.max(0, 1 - index * 0.2);
+  
+  const imageUrl = article.image_url || getFallbackImage(article.id);
 
   return (
     <motion.div
       {...dragProps}
       animate={controls}
-      initial={false}
+      initial={{ y: baseY + 50, opacity: 0 }}
+      whileInView={{ y: baseY, opacity: baseOpacity, scale: baseScale }}
+      layout
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       style={{
         x,
         rotate,
-        scale,
-        opacity: isActive ? 1 : 0.6,
-        zIndex: isActive ? 10 : 0,
+        zIndex: 50 - index,
         pointerEvents: isActive ? 'auto' : 'none',
       }}
-      className="absolute inset-0 w-full h-full bg-background rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden border border-sage/20 flex flex-col touch-pan-y"
+      className="absolute inset-0 w-full h-[60vh] max-h-[600px] bg-background rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden border border-white/5 flex flex-col touch-pan-y"
     >
-      <motion.div style={{ opacity: readOpacity }} className="absolute inset-0 z-50 pointer-events-none bg-sage/10 flex items-center justify-center">
-        <div className="bg-sage text-background rounded-full p-6 shadow-2xl scale-150">
-          <Check size={48} strokeWidth={3} />
+      <motion.div style={{ opacity: readOpacity }} className="absolute inset-0 z-50 pointer-events-none bg-sage/20 flex items-center justify-center backdrop-blur-sm">
+        <div className="bg-sage text-background rounded-full p-8 shadow-2xl scale-150">
+          <Check size={56} strokeWidth={4} />
         </div>
       </motion.div>
       
-      <motion.div style={{ opacity: readLaterOpacity }} className="absolute inset-0 z-50 pointer-events-none bg-gold/10 flex items-center justify-center">
-        <div className="bg-gold text-background rounded-full p-6 shadow-2xl scale-150">
-          <BookmarkPlus size={48} strokeWidth={3} />
+      <motion.div style={{ opacity: readLaterOpacity }} className="absolute inset-0 z-50 pointer-events-none bg-gold/20 flex items-center justify-center backdrop-blur-sm">
+        <div className="bg-gold text-background rounded-full p-8 shadow-2xl scale-150">
+          <BookmarkPlus size={56} strokeWidth={4} />
         </div>
       </motion.div>
 
-      <div className="relative h-48 sm:h-56 shrink-0 bg-sage-soft/30 overflow-hidden">
-        {article.image_url ? (
-          <img src={article.image_url} alt="Article visual" className="w-full h-full object-cover select-none pointer-events-none" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-sage font-mono text-sm uppercase tracking-widest bg-sage-soft/20">
-            Editorial Piece
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/20"></div>
+      <div className="relative w-full h-full bg-sage-soft/10">
+        <img src={imageUrl} alt="Article visual" className="w-full h-full object-cover select-none pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
         
         <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-10">
-          <span className="px-3 py-1.5 bg-foreground/90 backdrop-blur text-background text-[10px] font-bold uppercase tracking-widest rounded-full shadow-lg border border-background/20">
+          <span className="px-4 py-2 bg-black/50 backdrop-blur-md text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg border border-white/10">
             {article.category}
           </span>
-          <span suppressHydrationWarning className="px-3 py-1.5 bg-foreground/90 backdrop-blur text-background text-[10px] font-bold rounded-full shadow-lg border border-background/20 font-mono">
+          <span suppressHydrationWarning className="px-4 py-2 bg-black/50 backdrop-blur-md text-white text-xs font-bold rounded-full shadow-lg border border-white/10 font-mono">
             {new Date(article.publication_date).toLocaleDateString()}
           </span>
         </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-6 sm:px-8 pb-32 hide-scrollbar relative z-10 -mt-6">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-4 leading-tight tracking-tight">
-          {analysis.short_headline || article.title}
-        </h2>
         
-        <p className="text-xs font-bold text-text-muted mb-8 uppercase tracking-widest">
-          Source: {article.source?.name}
-        </p>
-
-        {editorialComment && (
-          <div className="flex items-start gap-4 mb-8 bg-sage-soft/10 p-5 rounded-2xl border border-sage/20">
-            <div>
-              <p className="text-xs font-mono font-bold text-sage mb-2 uppercase tracking-wider">AI Insight</p>
-              <p className="text-[15px] text-text-secondary italic">"{editorialComment}"</p>
-            </div>
-          </div>
-        )}
-
-        <div className="prose max-w-none">
-          <p className="text-[16px] sm:text-[17px] leading-relaxed mb-8 text-foreground font-medium">
-            {analysis.detailed_summary}
+        {/* Short headline overlaid at the bottom of the visual card */}
+        <div className="absolute bottom-8 left-8 right-8 z-10">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
+            {article.title}
+          </h2>
+          <p className="text-sm font-bold text-white/70 mt-4 uppercase tracking-widest flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-sage"></span>
+            {article.source?.name}
           </p>
-
-          <div className="bg-sage-soft/10 rounded-2xl p-6 mb-8 border border-sage/10">
-            <h3 className="text-xs font-black text-foreground mb-3 uppercase tracking-widest flex items-center gap-2 font-mono">
-              <span className="w-2 h-2 bg-gold rounded-full"></span>
-              Why it matters
-            </h3>
-            <p className="text-text-secondary text-[15px] leading-relaxed m-0">
-              {analysis.why_it_matters}
-            </p>
-          </div>
         </div>
-
-        <a 
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-sage hover:text-sage-soft font-bold transition mx-auto mb-8 font-mono text-sm uppercase tracking-wider"
-        >
-          Read full source <ExternalLink size={16} />
-        </a>
       </div>
     </motion.div>
   );

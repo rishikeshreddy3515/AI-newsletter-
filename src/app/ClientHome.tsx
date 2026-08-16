@@ -1,18 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Feed from './Feed';
 import Interactive3DCard from '@/components/ui/interactive-3d-card';
 import { GlowCard } from '@/components/ui/spotlight-card';
 import DisplayCards from '@/components/ui/display-cards';
+import Link from 'next/link';
 import { pageTransition, staggerContainer, fadeUp } from '@/lib/animations';
-import { Sparkles, Activity, FileText, Clock, TrendingUp } from 'lucide-react';
+import { Sparkles, Activity, FileText, Clock, TrendingUp, Trash2, X, Bookmark } from 'lucide-react';
 import CartoonMascot from '@/components/CartoonMascot';
 import { SplineScene } from '@/components/ui/splite';
+import { cleanupDatabase, wipeSavedArticles, updateArticleStatus } from './actions';
 
 export default function ClientHome({ articles }: { articles: any[] }) {
+  const [localArticles, setLocalArticles] = useState(articles);
   const [isReading, setIsReading] = useState(false);
+  const [isWiping, setIsWiping] = useState(false);
+
+  useEffect(() => {
+    // Silently enforce the 1-day and Sunday deletion rules in the background
+    cleanupDatabase().catch(console.error);
+  }, []);
 
   const isArticleRead = (article: any) => {
     const st = Array.isArray(article.status) ? article.status[0] : article.status;
@@ -28,11 +37,38 @@ export default function ClientHome({ articles }: { articles: any[] }) {
     return isArticleRead(article) || isArticleSaved(article);
   };
 
-  const unreadArticles = articles.filter(a => !isArticleCompleted(a));
+  const unreadArticles = localArticles.filter(a => !isArticleCompleted(a));
   const hasUnread = unreadArticles.length > 0;
-  const feedArticles = hasUnread ? unreadArticles : articles;
+  const feedArticles = hasUnread ? unreadArticles : localArticles;
 
-  if (articles.length === 0) {
+  const handleRemoveSingleSaved = async (e: React.MouseEvent, articleId: string) => {
+    e.stopPropagation();
+    
+    // Optimistic UI update: Set is_saved to false on the specific article
+    setLocalArticles(prev => prev.map(a => {
+      if (a.id === articleId) {
+        const currentStatus = Array.isArray(a.status) ? a.status[0] : (a.status || {});
+        return { ...a, status: [{ ...currentStatus, is_saved: false }] };
+      }
+      return a;
+    }));
+
+    // Update database in background
+    await updateArticleStatus(articleId, { is_saved: false });
+  };
+
+  const handleWipeSaved = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsWiping(true);
+    const { success } = await wipeSavedArticles();
+    if (success) {
+      // Remove all saved articles from the local UI state
+      setLocalArticles(prev => prev.filter(a => !isArticleSaved(a)));
+    }
+    setIsWiping(false);
+  };
+
+  if (localArticles.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
         <CartoonMascot state="thinking" size={120} />
@@ -42,8 +78,8 @@ export default function ClientHome({ articles }: { articles: any[] }) {
     );
   }
 
-  const featured = articles[0];
-  const savedArticles = articles.filter(isArticleSaved);
+  const featured = localArticles[0];
+  const savedArticles = localArticles.filter(isArticleSaved);
   
   const gridArticles = savedArticles.map(article => ({
     title: article.analysis?.[0]?.short_headline || article.title,
@@ -52,7 +88,7 @@ export default function ClientHome({ articles }: { articles: any[] }) {
   }));
 
   // Analytics Math
-  const totalRead = articles.filter(isArticleRead).length;
+  const totalRead = localArticles.filter(isArticleRead).length;
   const totalSources = 12; // Static or computed from actual sources if available
 
   return (
@@ -84,12 +120,19 @@ export default function ClientHome({ articles }: { articles: any[] }) {
                 The most important stories, breakthroughs, and developments in artificial intelligence you actually need to know.
               </motion.p>
               
-              <motion.div variants={fadeUp}>
+              <motion.div variants={fadeUp} className="relative inline-block mt-4">
+                {/* Glowing ambient background shadow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-sage to-sage-soft rounded-full blur-lg opacity-40 group-hover:opacity-70 transition duration-500"></div>
+                
                 <button 
                   onClick={() => setIsReading(true)}
-                  className="group relative flex h-14 items-center justify-center overflow-hidden rounded-full border border-sage/40 bg-foreground/90 px-10 text-background shadow-lg transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95 text-sm font-medium"
+                  className="group relative flex h-16 items-center justify-center overflow-hidden rounded-full border-2 border-sage/50 bg-gradient-to-r from-sage to-sage-soft px-12 text-white shadow-[0_0_40px_-10px_rgba(143,162,138,0.5)] transition-all duration-500 ease-out hover:scale-105 hover:shadow-[0_0_60px_-10px_rgba(143,162,138,0.8)] active:scale-95"
                 >
-                  <span className="relative z-10 flex items-center gap-2">
+                  {/* Shimmer sweep effect */}
+                  <div className="absolute inset-0 w-full h-full bg-white/20 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 ease-out"></div>
+                  
+                  <span className="relative z-10 flex items-center gap-3 text-lg font-extrabold tracking-widest uppercase drop-shadow-md">
+                    <Activity size={22} className="group-hover:animate-pulse" />
                     {hasUnread ? "Start Reading" : "Read Again"}
                   </span>
                 </button>
@@ -171,13 +214,28 @@ export default function ClientHome({ articles }: { articles: any[] }) {
               className="flex flex-col items-center lg:items-end justify-center min-h-[400px]"
               onClick={() => setIsReading(true)}
             >
-              <div className="w-full max-w-sm mb-8 text-center lg:text-right">
+              <div className="w-full max-w-sm mb-8 flex flex-col lg:items-end text-center lg:text-right">
                 <h3 className="text-2xl font-bold text-foreground tracking-tight">Saved for Later</h3>
-                <p className="text-text-secondary mt-2">Articles you bookmarked to read.</p>
+                <p className="text-text-secondary mt-2 mb-4">Articles you bookmarked to read.</p>
+                
+                {savedArticles.length > 0 && (
+                  <button
+                    onClick={handleWipeSaved}
+                    disabled={isWiping}
+                    className="group flex items-center gap-2 px-4 py-2 bg-sage-soft/10 hover:bg-sage-soft/20 text-text-secondary hover:text-sage border border-sage/20 rounded-full text-xs font-bold tracking-widest uppercase transition-all"
+                  >
+                    {isWiping ? (
+                      <span className="animate-spin w-3 h-3 border-2 border-sage border-t-transparent rounded-full"></span>
+                    ) : (
+                      <Trash2 size={14} className="group-hover:scale-110 transition-transform" />
+                    )}
+                    Clear All
+                  </button>
+                )}
               </div>
-              <div className="w-full max-w-sm cursor-pointer" onClick={() => setIsReading(true)}>
+              <Link href="/read-later" className="w-full max-w-sm cursor-pointer block">
                 <DisplayCards cards={gridArticles} />
-              </div>
+              </Link>
             </motion.div>
           </div>
 
