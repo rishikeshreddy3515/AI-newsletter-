@@ -86,7 +86,7 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
   const editorialComment = analysis?.editorial_comment;
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center w-full h-[100dvh] max-w-7xl mx-auto px-6 lg:px-12 py-12 lg:py-24 relative bg-background gap-8 lg:gap-24 overflow-hidden">
+    <div className="flex flex-col lg:flex-row items-center justify-center w-full h-[100dvh] max-w-7xl mx-auto px-6 lg:px-12 py-6 pt-20 lg:py-24 relative bg-background gap-4 lg:gap-24 overflow-hidden">
       <button 
         onClick={onClose}
         className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-sage-soft/30 backdrop-blur-xl border border-sage/20 rounded-full font-bold shadow-sm hover:scale-105 transition-transform text-foreground"
@@ -95,7 +95,7 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
       </button>
 
       {/* LEFT COLUMN: Editorial Content */}
-      <div className="flex-1 w-full max-w-2xl flex flex-col justify-center h-full relative z-20 order-2 lg:order-1 pt-8 lg:pt-0">
+      <div className="flex-1 w-full max-w-2xl flex flex-col justify-center h-full relative z-20 order-2 lg:order-1 pt-4 lg:pt-0 overflow-hidden">
         <AnimatePresence mode="wait">
           {activeArticle && (
             <motion.div 
@@ -104,32 +104,32 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -15, filter: "blur(4px)" }}
               transition={{ duration: 0.4, ease: "easeOut" }}
-              className="flex flex-col h-full overflow-y-auto hide-scrollbar pb-32 pr-2"
+              className="flex flex-col h-full overflow-y-auto hide-scrollbar pb-4 lg:pb-32 pr-2"
             >
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-[1.1] tracking-tight">
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-[1.1] tracking-tight">
                 {analysis?.short_headline || activeArticle.title}
               </h2>
               
               {editorialComment && (
-                <div className="flex items-start gap-4 mb-8 bg-sage-soft/10 p-6 rounded-2xl border border-sage/20">
+                <div className="flex items-start gap-4 mb-6 bg-sage-soft/10 p-5 rounded-2xl border border-sage/20">
                   <div>
                     <p className="text-xs font-mono font-bold text-sage mb-2 uppercase tracking-wider">AI Insight</p>
-                    <p className="text-[16px] text-text-secondary italic leading-relaxed">"{editorialComment}"</p>
+                    <p className="text-[15px] text-text-secondary italic leading-relaxed">"{editorialComment}"</p>
                   </div>
                 </div>
               )}
 
               <div className="prose max-w-none">
-                <p className="text-[17px] sm:text-[19px] leading-relaxed mb-8 text-foreground font-medium">
+                <p className="text-[16px] sm:text-[19px] leading-relaxed mb-6 text-foreground font-medium">
                   {analysis?.detailed_summary}
                 </p>
 
-                <div className="bg-sage-soft/10 rounded-2xl p-8 mb-12 border border-sage/10">
+                <div className="bg-sage-soft/10 rounded-2xl p-6 mb-8 border border-sage/10">
                   <h3 className="text-xs font-black text-foreground mb-3 uppercase tracking-widest flex items-center gap-2 font-mono">
                     <span className="w-2 h-2 bg-gold rounded-full"></span>
                     Why it matters
                   </h3>
-                  <p className="text-text-secondary text-[16px] leading-relaxed m-0">
+                  <p className="text-text-secondary text-[15px] leading-relaxed m-0">
                     {analysis?.why_it_matters}
                   </p>
                 </div>
@@ -139,20 +139,20 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
         </AnimatePresence>
 
         {/* Action Buttons (Swipe Controls) */}
-        <div className="flex items-center gap-6 mt-auto pb-12 lg:pb-0">
+        <div className="flex items-center gap-6 mt-4 lg:mt-auto pb-4 lg:pb-0 shrink-0">
           <button 
             onClick={() => triggerSwipe('left')}
-            className="w-16 h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group"
+            className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group shrink-0"
             aria-label="Read Later"
           >
-            <Bookmark size={28} strokeWidth={isSaved ? 0 : 2} className={isSaved ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
+            <Bookmark size={24} strokeWidth={isSaved ? 0 : 2} className={isSaved ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
           </button>
           <button 
             onClick={() => triggerSwipe('right')}
-            className="w-16 h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-sage group"
+            className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-sage group shrink-0"
             aria-label="Mark Read"
           >
-            <Book size={28} strokeWidth={isRead ? 0 : 2} className={isRead ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
+            <Book size={24} strokeWidth={isRead ? 0 : 2} className={isRead ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
           </button>
           <span className="text-sm font-bold text-text-muted uppercase tracking-widest ml-4 hidden sm:block">
             Swipe or Click
@@ -161,7 +161,7 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
       </div>
 
       {/* RIGHT COLUMN: Dribbble Card Stack */}
-      <div className="flex-1 w-full max-w-md lg:max-w-lg relative h-[50vh] lg:h-[65vh] perspective-1000 z-10 order-1 lg:order-2 shrink-0">
+      <div className="h-[45vh] lg:h-[65vh] w-full lg:flex-1 max-w-md lg:max-w-lg relative perspective-1000 z-10 order-1 lg:order-2 shrink-0">
         <AnimatePresence mode="popLayout">
           {articles.map((article, index) => {
             const isActive = index === 0;

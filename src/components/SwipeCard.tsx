@@ -104,7 +104,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
         zIndex: 50 - index,
         pointerEvents: isActive ? 'auto' : 'none',
       }}
-      className="absolute inset-0 w-full h-[60vh] max-h-[600px] bg-background rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden border border-white/5 flex flex-col touch-pan-y"
+      className="absolute inset-0 w-full h-full max-h-[700px] bg-background rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden border border-white/5 flex flex-col touch-pan-y"
     >
       <motion.div style={{ opacity: readOpacity }} className="absolute inset-0 z-50 pointer-events-none bg-sage/20 flex items-center justify-center backdrop-blur-sm">
         <div className="bg-sage text-background rounded-full p-8 shadow-2xl scale-150">
