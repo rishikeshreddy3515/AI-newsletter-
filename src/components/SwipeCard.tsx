@@ -89,6 +89,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
   const baseOpacity = isActive ? 1 : Math.max(0, 1 - index * 0.2);
   
   const imageUrl = article.image_url || getFallbackImage(article.id);
+  const analysis = Array.isArray(article.analysis) ? article.analysis[0] : article.analysis;
 
   return (
     <motion.div
@@ -120,26 +121,50 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
 
       <div className="relative w-full h-full bg-sage-soft/10">
         <img src={imageUrl} alt="Article visual" className="w-full h-full object-cover select-none pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
         
-        <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-10">
-          <span className="px-4 py-2 bg-black/50 backdrop-blur-md text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg border border-white/10">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none"></div>
+        
+        {/* DESKTOP LAYOUT (Minimal Text) */}
+        <div className="hidden lg:block">
+          <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-10">
+            <span className="px-4 py-2 bg-black/50 backdrop-blur-md text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg border border-white/10">
+              {article.category}
+            </span>
+            <span suppressHydrationWarning className="px-4 py-2 bg-black/50 backdrop-blur-md text-white text-xs font-bold rounded-full shadow-lg border border-white/10 font-mono">
+              {new Date(article.publication_date).toLocaleDateString()}
+            </span>
+          </div>
+          <div className="absolute bottom-8 left-8 right-8 z-10">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
+              {analysis?.short_headline || article.title}
+            </h2>
+            <p className="text-sm font-bold text-white/70 mt-4 uppercase tracking-widest flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-sage"></span>
+              {article.source?.name}
+            </p>
+          </div>
+        </div>
+
+        {/* MOBILE LAYOUT (Immersive Full Text) */}
+        <div className="block lg:hidden absolute bottom-6 left-5 right-5 z-10 flex flex-col justify-end">
+          <span className="px-3 py-1 bg-sage/90 backdrop-blur-md text-background text-[10px] font-black uppercase tracking-widest rounded-full w-fit mb-4 shadow-lg">
             {article.category}
           </span>
-          <span suppressHydrationWarning className="px-4 py-2 bg-black/50 backdrop-blur-md text-white text-xs font-bold rounded-full shadow-lg border border-white/10 font-mono">
-            {new Date(article.publication_date).toLocaleDateString()}
-          </span>
-        </div>
-        
-        {/* Short headline overlaid at the bottom of the visual card */}
-        <div className="absolute bottom-8 left-8 right-8 z-10">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
-            {article.title}
+          <h2 className="text-2xl font-extrabold text-white leading-snug tracking-tight drop-shadow-lg mb-3">
+            {analysis?.short_headline || article.title}
           </h2>
-          <p className="text-sm font-bold text-white/70 mt-4 uppercase tracking-widest flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-sage"></span>
-            {article.source?.name}
+          <p className="text-sm font-medium text-white/80 line-clamp-4 leading-relaxed mb-5 drop-shadow-md">
+            {analysis?.detailed_summary || article.description}
           </p>
+          <div className="flex items-center justify-between pt-4 border-t border-white/20">
+            <span className="text-[11px] font-bold text-sage uppercase tracking-widest flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold"></span>
+              {article.source?.name}
+            </span>
+            <span suppressHydrationWarning className="text-[11px] font-mono font-medium text-white/50">
+              {new Date(article.publication_date).toLocaleDateString()}
+            </span>
+          </div>
         </div>
       </div>
     </motion.div>

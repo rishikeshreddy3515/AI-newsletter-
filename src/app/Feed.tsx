@@ -94,8 +94,8 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
         <ArrowLeft size={16} /> Dashboard
       </button>
 
-      {/* LEFT COLUMN: Editorial Content */}
-      <div className="flex-1 w-full max-w-2xl flex flex-col justify-center h-full relative z-20 order-2 lg:order-1 pt-4 lg:pt-0 overflow-hidden">
+      {/* LEFT COLUMN: Editorial Content (HIDDEN ON MOBILE) */}
+      <div className="hidden lg:flex flex-1 w-full max-w-2xl flex-col justify-center h-full relative z-20 order-2 lg:order-1 pt-4 lg:pt-0 overflow-hidden">
         <AnimatePresence mode="wait">
           {activeArticle && (
             <motion.div 
@@ -138,30 +138,30 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
           )}
         </AnimatePresence>
 
-        {/* Action Buttons (Swipe Controls) */}
-        <div className="flex items-center gap-6 mt-4 lg:mt-auto pb-4 lg:pb-0 shrink-0">
+        {/* Action Buttons (Desktop ONLY) */}
+        <div className="hidden lg:flex items-center gap-6 mt-4 lg:mt-auto pb-4 lg:pb-0 shrink-0">
           <button 
             onClick={() => triggerSwipe('left')}
-            className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group shrink-0"
+            className="w-16 h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group shrink-0"
             aria-label="Read Later"
           >
             <Bookmark size={24} strokeWidth={isSaved ? 0 : 2} className={isSaved ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
           </button>
           <button 
             onClick={() => triggerSwipe('right')}
-            className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-sage group shrink-0"
+            className="w-16 h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-sage group shrink-0"
             aria-label="Mark Read"
           >
             <Book size={24} strokeWidth={isRead ? 0 : 2} className={isRead ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
           </button>
-          <span className="text-sm font-bold text-text-muted uppercase tracking-widest ml-4 hidden sm:block">
+          <span className="text-sm font-bold text-text-muted uppercase tracking-widest ml-4">
             Swipe or Click
           </span>
         </div>
       </div>
 
       {/* RIGHT COLUMN: Dribbble Card Stack */}
-      <div className="h-[45vh] lg:h-[65vh] w-full lg:flex-1 max-w-md lg:max-w-lg relative perspective-1000 z-10 order-1 lg:order-2 shrink-0">
+      <div className="h-[75vh] lg:h-[65vh] w-full lg:flex-1 max-w-md lg:max-w-lg relative perspective-1000 z-10 order-1 lg:order-2 shrink-0">
         <AnimatePresence mode="popLayout">
           {articles.map((article, index) => {
             const isActive = index === 0;
@@ -177,6 +177,24 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
             );
           }).reverse()}
         </AnimatePresence>
+      </div>
+
+      {/* Action Buttons (Mobile ONLY) */}
+      <div className="flex lg:hidden items-center justify-center gap-8 mt-2 order-3 z-20 w-full shrink-0">
+        <button 
+          onClick={() => triggerSwipe('left')}
+          className="w-16 h-16 flex items-center justify-center bg-sage-soft/10 backdrop-blur-xl border border-sage/20 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group shrink-0"
+          aria-label="Read Later"
+        >
+          <Bookmark size={28} strokeWidth={isSaved ? 0 : 2} className={isSaved ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
+        </button>
+        <button 
+          onClick={() => triggerSwipe('right')}
+          className="w-16 h-16 flex items-center justify-center bg-sage-soft/10 backdrop-blur-xl border border-sage/20 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-sage group shrink-0"
+          aria-label="Mark Read"
+        >
+          <Book size={28} strokeWidth={isRead ? 0 : 2} className={isRead ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
+        </button>
       </div>
     </div>
   );
