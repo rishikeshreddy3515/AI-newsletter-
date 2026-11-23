@@ -56,10 +56,14 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
     if (isExiting) return;
     setIsExiting(true);
 
-    const targetX = dir === 'right' ? window.innerWidth : -window.innerWidth;
+    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
+    const targetX = dir === 'right' ? Math.max(screenWidth * 0.9, 600) : -Math.max(screenWidth * 0.9, 600);
     
-    // Animate the motion value directly so opacity and rotation transforms react
-    await animate(x, targetX, { type: 'spring', stiffness: 200, damping: 20 });
+    try {
+      await animate(x, targetX, { duration: 0.28, ease: [0.32, 0.72, 0, 1] });
+    } catch {
+      // Fallback if interrupted
+    }
     
     onSwipe(dir);
   };

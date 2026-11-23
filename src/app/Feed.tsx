@@ -5,27 +5,42 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SwipeCard, { SwipeCardHandle } from '@/components/SwipeCard';
 import { updateArticleStatus } from './actions';
 import { CheckCircle, ArrowLeft, RefreshCw, Book, Bookmark } from 'lucide-react';
+import CartoonMascot from '@/components/CartoonMascot';
 
 export default function Feed({ initialArticles, onClose }: { initialArticles: any[], onClose: () => void }) {
   const [articles, setArticles] = useState(initialArticles);
+  const [isSwiping, setIsSwiping] = useState(false);
   const activeCardRef = useRef<SwipeCardHandle>(null);
 
-  const handleSwipe = async (articleId: string, direction: 'left' | 'right') => {
-    // 1. Instantly delete it from the UI state ONLY AFTER the card finishes its physics animation
+  const handleSwipe = (articleId: string, direction: 'left' | 'right') => {
+    // 1. Instantly advance the UI state
     setArticles(prev => prev.filter(a => a.id !== articleId));
     
-    // 2. Do the database update in the background
-    if (direction === 'right') {
-      await updateArticleStatus(articleId, { is_read: true });
-    } else {
-      await updateArticleStatus(articleId, { is_saved: true });
-    }
+    // 2. Perform optimistic database update in the background (non-blocking)
+    const updates = direction === 'right' ? { is_read: true } : { is_saved: true };
+    updateArticleStatus(articleId, updates).catch(err => {
+      console.warn('Background sync warning:', err);
+    });
   };
 
-  const triggerSwipe = (dir: 'left' | 'right') => {
+  const triggerSwipe = async (dir: 'left' | 'right') => {
+    if (isSwiping || articles.length === 0) return;
+    setIsSwiping(true);
+
+    const currentArticle = articles[0];
     if (activeCardRef.current) {
-      activeCardRef.current.swipe(dir);
+      try {
+        await activeCardRef.current.swipe(dir);
+      } catch {
+        handleSwipe(currentArticle.id, dir);
+      }
+    } else {
+      handleSwipe(currentArticle.id, dir);
     }
+
+    setTimeout(() => {
+      setIsSwiping(false);
+    }, 160);
   };
 
   if (articles.length === 0) {
@@ -53,8 +68,8 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
           transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
           className="relative z-10 flex flex-col items-center text-center p-12 backdrop-blur-2xl bg-white/5 dark:bg-black/20 border border-sage/20 rounded-[3rem] shadow-2xl max-w-xl mx-4"
         >
-          <div className="w-24 h-24 mb-8 rounded-full bg-sage-soft/20 flex items-center justify-center border border-sage/30 shadow-[0_0_30px_-5px_rgba(143,162,138,0.4)]">
-            <CheckCircle size={40} className="text-sage" />
+          <div className="mb-6 flex items-center justify-center">
+            <CartoonMascot state="reading" size={88} />
           </div>
           
           <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-foreground tracking-tight drop-shadow-sm">You're all caught up.</h2>
@@ -142,19 +157,23 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
         <div className="hidden lg:flex items-center gap-6 mt-4 lg:mt-auto pb-4 lg:pb-0 shrink-0">
           <button 
             onClick={() => triggerSwipe('left')}
-            className="w-16 h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group shrink-0"
+            disabled={isSwiping}
+            className="w-16 h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group shrink-0 disabled:opacity-50 cursor-pointer"
             aria-label="Read Later"
+            title="Bookmark / Save for Later (Swipe Left)"
           >
             <Bookmark size={24} strokeWidth={isSaved ? 0 : 2} className={isSaved ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
           </button>
           <button 
             onClick={() => triggerSwipe('right')}
-            className="w-16 h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-sage group shrink-0"
+            disabled={isSwiping}
+            className="w-16 h-16 flex items-center justify-center bg-sage-soft/20 backdrop-blur-xl border border-sage/30 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-sage group shrink-0 disabled:opacity-50 cursor-pointer"
             aria-label="Mark Read"
+            title="Mark as Read / Next (Swipe Right)"
           >
             <Book size={24} strokeWidth={isRead ? 0 : 2} className={isRead ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
           </button>
-          <span className="text-sm font-bold text-text-muted uppercase tracking-widest ml-4">
+          <span className="text-sm font-bold text-text-muted uppercase tracking-widest ml-4 select-none">
             Swipe or Click
           </span>
         </div>
@@ -175,7 +194,7 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
                 onSwipe={(dir) => handleSwipe(article.id, dir)}
               />
             );
-          }).reverse()}
+          })}
         </AnimatePresence>
       </div>
 
@@ -183,15 +202,19 @@ export default function Feed({ initialArticles, onClose }: { initialArticles: an
       <div className="flex lg:hidden items-center justify-center gap-8 mt-4 order-3 z-20 w-full shrink-0 pb-6">
         <button 
           onClick={() => triggerSwipe('left')}
-          className="w-16 h-16 flex items-center justify-center bg-sage-soft/10 backdrop-blur-xl border border-sage/20 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group shrink-0"
+          disabled={isSwiping}
+          className="w-16 h-16 flex items-center justify-center bg-sage-soft/10 backdrop-blur-xl border border-sage/20 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-gold group shrink-0 disabled:opacity-50 cursor-pointer"
           aria-label="Read Later"
+          title="Bookmark / Save for Later"
         >
           <Bookmark size={28} strokeWidth={isSaved ? 0 : 2} className={isSaved ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
         </button>
         <button 
           onClick={() => triggerSwipe('right')}
-          className="w-16 h-16 flex items-center justify-center bg-sage-soft/10 backdrop-blur-xl border border-sage/20 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-sage group shrink-0"
+          disabled={isSwiping}
+          className="w-16 h-16 flex items-center justify-center bg-sage-soft/10 backdrop-blur-xl border border-sage/20 rounded-full shadow-sm hover:scale-105 active:scale-95 transition-transform text-sage group shrink-0 disabled:opacity-50 cursor-pointer"
           aria-label="Mark Read"
+          title="Mark as Read / Next"
         >
           <Book size={28} strokeWidth={isRead ? 0 : 2} className={isRead ? "fill-current scale-110" : "transition-transform group-hover:scale-110"} />
         </button>

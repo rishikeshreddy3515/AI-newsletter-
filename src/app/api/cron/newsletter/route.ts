@@ -103,7 +103,7 @@ export async function POST(request: Request) {
 
     htmlParts.push(`
       <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eaeaea; text-align: center;">
-        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}" style="display: inline-block; background: #000; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 14px;">Open Full Brief in App</a>
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ai-newsletter-iota.vercel.app'}" style="display: inline-block; background: #000; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 14px;">Open Full Brief in App</a>
       </div>
     `);
 
